@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resident Inventory</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        padding: 20px;
+      }
+
+      h1 {
+        margin-bottom: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      ul {
+        padding-left: 20px;
+        margin-bottom: 5px;
+      }
+
+      form {
+        margin-bottom: 20px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select {
+        padding: 8px;
+        margin-bottom: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .export-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .comment-input {
+        padding: 8px;
+        margin-bottom: 10px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Resident List</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Resident ID</th>
+            <th>Name</th>
+            <th>Items</th>
+            <th>Action</th>
+            <th>Comments</th>
+            <!-- Added Comments column -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for resident in residents %}
+          <tr>
+            <td>{{ resident.id }}</td>
+            <td>{{ resident.name }}</td>
+            <td>
+              <ul>
+                {% for item in resident.items.all %}
+                <li>{{ item.name }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td>
+              <form
+                action="{% url 'delete_resident' resident.id %}"
+                method="POST"
+              >
+                {% csrf_token %}
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+            <td>
+              <input
+                type="text"
+                name="comment"
+                class="comment-input"
+                placeholder="Enter comment"
+                required
+              />
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h1>Add Resident</h1>
+      <form action="{% url 'add_resident' %}" method="POST">
+        {% csrf_token %}
+        <label for="id">ID:</label>
+        <input type="number" id="id" name="id" required /><br /><br />
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required /><br /><br />
+        <button type="submit">Add Resident</button>
+      </form>
+
+      <h1>Add Item to Resident</h1>
+      <form action="{% url 'add_item' %}" method="POST">
+        {% csrf_token %}
+        <label for="resident_id">Select Resident:</label>
+        <select id="resident_id" name="resident_id" required>
+          {% for resident in residents %}
+          <option value="{{ resident.id }}">
+            {{ resident.id }} - {{ resident.name }}
+          </option>
+          {% endfor %}</select
+        ><br /><br />
+        <label for="item_name">Item Name:</label>
+        <input
+          type="text"
+          id="item_name"
+          name="item_name"
+          required
+        /><br /><br />
+        <button type="submit">Add Item</button>
+      </form>
+    </div>
+
+    <div class="export-container">
+      <form action="{% url 'export_residents_csv' %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Export Residents as CSV</button>
+      </form>
+    </div>
+  </body>
+</html>

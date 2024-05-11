@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registration Page</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+  body {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  background: linear-gradient(to bottom right, #8c6d3a, #ffffff); /* Darker tanish gradient */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+  overflow: hidden;
+}
+
+
+    
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.8); /* Tanish white background with transparency */
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px); /* Adding blur effect behind the container */
+    }
+    
+    h2 {
+      font-weight: 500;
+      color: #b38c43; /* Tanish title color */
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    .smaller-text {
+      font-size: 14px;
+      color: #d4a758; /* Tanish slightly lighter color */
+      text-align: center;
+      margin-top: 5px;
+    }
+    
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .form-text {
+      margin-top: 20px;
+      margin-bottom: 2px;
+    }
+    
+    .instruction-text {
+      font-size: 14px;
+      color: #5c5c5c;
+      margin-top: 5px;
+      margin-bottom: 0px;
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select,
+    button {
+      padding: 12px;
+      margin-top: 3px;
+      border: 2px solid #b38c43; /* Tanish border color */
+      border-radius: 8px;
+      width: 100%;
+      box-sizing: border-box;
+      background-color: rgba(255, 255, 255, 0.5); /* Tanish semi-transparent white */
+    }
+    
+    button {
+      margin-top: 20px;
+      background-color: #d4a758; /* Tanish button color */
+      color: white;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #b38c43; /* Darker tanish color on hover */
+    }
+    
+    .top-right-buttons {
+      font-family: "Open Sans", sans-serif;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+    
+    .top-right-buttons button {
+      margin-top: 4px;
+      border: 1px solid #8c8c8c;
+      background-color: #f2f2f2;
+      color: #b38c43; /* Tanish button text color */
+      margin-left: 4px;
+      font-weight: 600;
+    }
+  </style>
+  </head>
+  <body>
+
+    <div class="top-right-buttons">
+      <button onclick="window.location.href='http://localhost:8000/login/'">
+        Back to Login
+      </button>
+    </div>
+
+    <div class="container">
+      <h2>Registration Page</h2>
+      <p class="smaller-text">
+        Hey don't forget to treat yourself... looks like you deserve a coffee ☕
+      </p>
+
+      <!-- Start of the register form -->
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- This controls the error messages. These will only appear if the form was submitted already with errors. -->
+        {% if form.errors %}
+            {% if 'username' in form.errors %}
+                <p style="color: red; margin: 2px;">Error: Invalid username</p>
+
+            {% elif 'email' in form.errors %}
+                <p style="color: red; margin: 2px;">Error: Invalid email</p>
+
+            {% elif 'password1' in form.errors %}
+                <p style="color: red; margin: 2px;">Error: Invalid Password</p>
+
+            {% elif 'password2' in form.errors %}
+                {% for error in form.errors.password2 %}
+                    {% if 'The two password fields didn’t match.' in error %}
+                        <p style="color: red; margin: 2px;">Error: Password mismatch</p>
+
+                    {% else %}
+                        <p style="color: red; margin: 2px;">Error: Invalid Password</p>
+                    {% endif %}
+                {% endfor %}
+
+            {% else %}
+                <p style="color: red; margin: 2px;">An unknown error occured, please try again later.</p>
+            {% endif %}
+
+        {% endif %}
+        
+        <label class="form-text" for="id-username">Username</label>
+        <input
+          type="text"
+          name="username"
+          maxlength="20"
+          required id="id-username"
+          placeholder="Enter Username"
+        />
+        <p class="instruction-text">Usernames should only have alphanumeric characters and -, and have a max of 20 characters.</p>
+
+        <label class="form-text" for="id-email">Email Address</label>
+        <input
+          type="email"
+          name="email"
+          required id="id-email"
+          placeholder="Enter Email Address"
+        />
+        <p class="instruction-text">Please use regency-pacific email for registration.</p>
+
+        <label class="form-text" for="id-password1">Password</label>
+        <input
+          type="password"
+          name="password1"
+          required id="id-password1"
+          placeholder="Enter Password"
+        />
+        <p class="instruction-text">Your password cannot be all numeric, must be at least 8 characters and cannot be a common password.</p>
+
+        <label class="form-text" for="id-password2">Confirm Password</label>
+        <input
+          type="password"
+          name="password2"
+          required id="id-password2"
+          placeholder="Confirm Password"
+          
+        />
+        
+        <p class="instruction-text">Make sure that this matches your Password field.</p>
+
+        <button type="submit">Register</button>
+
+      </form>
+
+    </div>
+  
+  </body>
+</html>
