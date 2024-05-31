@@ -73,18 +73,26 @@ def delete_resident(request, resident_id):
     return render(request, 'delete_resident.html', {'resident': resident})
 
 
-def add_item(request):
+def add_items(request):
+    resident_id = request.GET.get('resident_id')
+    residents = Resident.objects.all()
+    selected_resident = None
+
     if request.method == 'POST':
-        # Get data from the form
         resident_id = request.POST.get('resident_id')
-        item_name = request.POST.get('item_name')
-        # Create a new item object associated with the resident
-        resident = Resident.objects.get(id=resident_id)
-        item = Item.objects.create(name=item_name)
-        resident.items.add(item)
-        # Redirect to regency page
+        item_names = request.POST.getlist('item_name[]')
+        resident = get_object_or_404(Resident, id=resident_id)
+        for item_name in item_names:
+            if item_name:  # Ensure the item name is not empty
+                item = Item.objects.create(name=item_name)
+                resident.items.add(item)
         return redirect('regency')
-    return render(request, 'add_item.html', {'residents': Resident.objects.all()})
+    
+    if resident_id:
+        selected_resident = get_object_or_404(Resident, id=resident_id)
+    
+    return render(request, 'add_items.html', {'residents': residents, 'selected_resident': selected_resident})
+
 
 
 def delete_item(request, item_id):

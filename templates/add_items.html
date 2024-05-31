@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Items</title>
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .form-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input[type="text"],
+    select {
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .add-button {
+      margin-bottom: 10px;
+    }
+    .item-entry {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .item-entry input[type="text"] {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+    .item-entry button {
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Add Items</h1>
+    <div class="form-container">
+      <form method="POST" action="{% url 'add_items' %}">
+        {% csrf_token %}
+        <label for="resident_id">Select Resident:</label>
+        <select id="resident_id" name="resident_id" required>
+          {% for resident in residents %}
+          <option value="{{ resident.id }}" {% if selected_resident and selected_resident.id == resident.id %}selected{% endif %}>
+            {{ resident.id }} - {{ resident.name }}
+          </option>
+          {% endfor %}
+        </select>
+        <div id="item-entries">
+          <div class="item-entry">
+            <input type="text" name="item_name[]" placeholder="Item Name" required />
+            <button type="button" onclick="addItemEntry()">Add Another Item</button>
+          </div>
+        </div>
+        <button type="submit">Save All Items</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    function addItemEntry() {
+      var entry = document.createElement('div');
+      entry.className = 'item-entry';
+      entry.innerHTML = '<input type="text" name="item_name[]" placeholder="Item Name" required />' +
+                        '<button type="button" onclick="removeItemEntry(this)">Remove</button>';
+      document.getElementById('item-entries').appendChild(entry);
+    }
+
+    function removeItemEntry(button) {
+      button.parentElement.remove();
+    }
+  </script>
+</body>
+</html>
