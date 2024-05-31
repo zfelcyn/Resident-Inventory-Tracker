@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm Delete</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        padding: 20px;
+      }
+      .form-container {
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      form {
+        margin-bottom: 20px;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="date"],
+      select,
+      textarea {
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .delete-button {
+        background-color: #dc3545;
+      }
+      .delete-button:hover {
+        background-color: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Confirm Delete</h1>
+      <div class="form-container">
+        <p>
+          Are you sure you want to delete the item:
+          <strong>{{ item.name }}</strong>?
+        </p>
+        <form method="POST" action="{% url 'delete_item' item.id %}">
+          {% csrf_token %}
+          <input type="hidden" name="item_id" value="{{ item.id }}" />
+          <label for="reason">Reason:</label>
+          <select id="reason" name="reason" required>
+            <option value="resident">Removed by Resident</option>
+            <option value="family">Removed by Family Member</option>
+          </select>
+          <button type="submit" class="delete-button">Delete</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

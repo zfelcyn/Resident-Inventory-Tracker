@@ -9,161 +9,274 @@
         font-family: "Arial", sans-serif;
         padding: 20px;
       }
-
       h1 {
         margin-bottom: 20px;
       }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
+      .alphabet {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         margin-bottom: 20px;
       }
-
-      th,
-      td {
+      .alphabet a {
         padding: 10px;
+        margin: 5px;
         border: 1px solid #ddd;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #007bff;
+        cursor: pointer;
       }
-
-      th {
+      .alphabet a:hover {
         background-color: #f2f2f2;
       }
-
-      ul {
-        padding-left: 20px;
-        margin-bottom: 5px;
+      .search-bar {
+        text-align: center;
+        margin-bottom: 20px;
       }
-
+      .search-bar input[type="text"] {
+        padding: 10px;
+        width: 50%;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+      }
+      .resident-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 20px;
+      }
+      .resident-list ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      .resident-list li {
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+      .resident-list li a {
+        text-decoration: none;
+        color: #007bff;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .resident-list li a:hover {
+        text-decoration: underline;
+      }
+      .item-list {
+        list-style-type: none;
+        padding-left: 20px;
+        display: none;
+      }
+      .item-list li {
+        padding: 5px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
       form {
         margin-bottom: 20px;
       }
-
       input[type="text"],
       input[type="number"],
-      select {
-        padding: 8px;
-        margin-bottom: 10px;
+      input[type="date"],
+      select,
+      textarea {
+        padding: 10px;
         width: 100%;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
         box-sizing: border-box;
       }
-
       button {
         padding: 10px;
         background-color: #007bff;
         color: #fff;
         border: none;
         cursor: pointer;
+        border-radius: 5px;
       }
-
       button:hover {
         background-color: #0056b3;
       }
-
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
+      .delete-button {
+        background-color: #dc3545;
+        margin-left: 10px;
       }
-
-      .export-container {
-        text-align: center;
-        margin-top: 20px;
+      .delete-button:hover {
+        background-color: #c82333;
       }
-
-      .comment-input {
-        padding: 8px;
-        margin-bottom: 10px;
-        width: 100%;
-        box-sizing: border-box;
+      .toggle-button {
+        background-color: transparent;
+        color: #007bff;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font-size: 1rem;
+        text-decoration: none;
+      }
+      .toggle-button:hover {
+        text-decoration: underline;
+      }
+      .info {
+        font-style: italic;
+        margin-bottom: 20px;
+      }
+      label {
+        font-weight: bold;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Resident List</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Resident ID</th>
-            <th>Name</th>
-            <th>Items</th>
-            <th>Action</th>
-            <th>Comments</th>
-            <!-- Added Comments column -->
-          </tr>
-        </thead>
-        <tbody>
+      <div class="search-bar">
+        <form method="GET" action="{% url 'regency' %}">
+          <input
+            type="text"
+            name="search"
+            placeholder="Search by name"
+            value="{{ request.GET.search }}"
+          />
+        </form>
+      </div>
+      <div class="alphabet">
+        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+        <a href="?letter={{ letter }}">{{ letter }}</a>
+        {% endfor %}
+      </div>
+      <p class="info">
+        Click on the resident's name to expand the list of their items.
+      </p>
+      <div class="resident-list">
+        {% if residents %}
+        <ul>
           {% for resident in residents %}
-          <tr>
-            <td>{{ resident.id }}</td>
-            <td>{{ resident.name }}</td>
-            <td>
-              <ul>
-                {% for item in resident.items.all %}
-                <li>{{ item.name }}</li>
-                {% endfor %}
-              </ul>
-            </td>
-            <td>
-              <form
-                action="{% url 'delete_resident' resident.id %}"
-                method="POST"
-              >
-                {% csrf_token %}
-                <button type="submit">Delete</button>
-              </form>
-            </td>
-            <td>
-              <input
-                type="text"
-                name="comment"
-                class="comment-input"
-                placeholder="Enter comment"
-                required
-              />
-            </td>
-          </tr>
+          <li>
+            <a
+              class="toggle-button"
+              onclick="toggleItems('items-{{ resident.id }}')"
+            >
+              {{ resident.name }}
+            </a>
+            <a
+              href="{% url 'resident_detail' resident.id %}"
+              style="margin-left: 10px; color: #007bff; text-decoration: none"
+              >Details</a
+            >
+            <ul class="item-list" id="items-{{ resident.id }}">
+              {% for item in resident.items.all %}
+              <li>
+                <span>{{ item.name }}</span>
+                <form
+                  method="GET"
+                  action="{% url 'delete_item' item.id %}"
+                  style="display: inline"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="delete-button">
+                    Delete Item
+                  </button>
+                </form>
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
           {% endfor %}
-        </tbody>
-      </table>
+        </ul>
+        {% else %}
+        <p>
+          No residents to display. Please select a letter or search for a
+          resident.
+        </p>
+        {% endif %}
+      </div>
+      <div class="form-container">
+        <h2>Add Resident</h2>
+        <form method="POST" action="{% url 'add_resident' %}">
+          {% csrf_token %}
+          <input type="number" name="id" placeholder="ID" required />
+          <input
+            type="text"
+            name="first_name"
+            placeholder="First Name"
+            required
+          />
+          <input
+            type="text"
+            name="last_name"
+            placeholder="Last Name"
+            required
+          />
+          <label for="date_of_admittance">Date of Admittance:</label>
+          <input
+            type="date"
+            name="date_of_admittance"
+            id="date_of_admittance"
+            placeholder="Date of Admittance"
+            required
+          />
+          <button type="submit">Add Resident</button>
+        </form>
 
-      <h1>Add Resident</h1>
-      <form action="{% url 'add_resident' %}" method="POST">
-        {% csrf_token %}
-        <label for="id">ID:</label>
-        <input type="number" id="id" name="id" required /><br /><br />
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required /><br /><br />
-        <button type="submit">Add Resident</button>
-      </form>
+        <h2>Add Item to Resident</h2>
+        <form method="POST" action="{% url 'add_item' %}">
+          {% csrf_token %}
+          <label for="resident_id">Select Resident:</label>
+          <select id="resident_id" name="resident_id" required>
+            {% for resident in residents %}
+            <option value="{{ resident.id }}">
+              {{ resident.id }} - {{ resident.name }}
+            </option>
+            {% endfor %}
+          </select>
+          <input
+            type="text"
+            name="item_name"
+            placeholder="Item Name"
+            required
+          />
+          <button type="submit">Add Item</button>
+        </form>
 
-      <h1>Add Item to Resident</h1>
-      <form action="{% url 'add_item' %}" method="POST">
-        {% csrf_token %}
-        <label for="resident_id">Select Resident:</label>
-        <select id="resident_id" name="resident_id" required>
-          {% for resident in residents %}
-          <option value="{{ resident.id }}">
-            {{ resident.id }} - {{ resident.name }}
-          </option>
-          {% endfor %}</select
-        ><br /><br />
-        <label for="item_name">Item Name:</label>
-        <input
-          type="text"
-          id="item_name"
-          name="item_name"
-          required
-        /><br /><br />
-        <button type="submit">Add Item</button>
-      </form>
+        <h2>Add Comment to Resident</h2>
+        <form method="POST" action="{% url 'add_comment' %}">
+          {% csrf_token %}
+          <label for="resident_id">Select Resident:</label>
+          <select id="resident_id" name="resident_id" required>
+            {% for resident in residents %}
+            <option value="{{ resident.id }}">
+              {{ resident.id }} - {{ resident.name }}
+            </option>
+            {% endfor %}
+          </select>
+          <textarea
+            name="comment_content"
+            placeholder="Enter comment"
+            required
+          ></textarea>
+          <button type="submit">Add Comment</button>
+        </form>
+      </div>
     </div>
-
-    <div class="export-container">
-      <form action="{% url 'export_residents_csv' %}" method="POST">
-        {% csrf_token %}
-        <button type="submit">Export Residents as CSV</button>
-      </form>
-    </div>
+    <script>
+      function toggleItems(id) {
+        var element = document.getElementById(id);
+        if (element.style.display === "none" || element.style.display === "") {
+          element.style.display = "block";
+        } else {
+          element.style.display = "none";
+        }
+      }
+    </script>
   </body>
 </html>

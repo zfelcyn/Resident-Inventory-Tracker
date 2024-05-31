@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resident Detail</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        padding: 20px;
+      }
+      h1 {
+        margin-bottom: 20px;
+      }
+      .details {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .details ul {
+        list-style-type: none;
+        padding: 0;
+      }
+      .details li {
+        padding: 5px;
+        border-bottom: 1px solid #ddd;
+      }
+      .comments,
+      .items {
+        margin-top: 20px;
+      }
+      .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .back-link:hover {
+        background-color: #0056b3;
+      }
+      .download-link {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #28a745;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .download-link:hover {
+        background-color: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Resident Detail: {{ resident.name }}</h1>
+    <div class="details">
+      <h2>Information</h2>
+      <ul>
+        <li><strong>ID:</strong> {{ resident.id }}</li>
+        <li><strong>Name:</strong> {{ resident.name }}</li>
+        <li>
+          <strong>Date of Admittance:</strong> {{ resident.date_of_admittance }}
+        </li>
+      </ul>
+      <div class="items">
+        <h2>Items</h2>
+        <ul>
+          {% for item in items %}
+          <li>{{ item.name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div class="comments">
+        <h2>Comments</h2>
+        <ul>
+          {% for comment in comments %}
+          <li>{{ comment.content }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <a href="{% url 'regency' %}" class="back-link">Back to Resident List</a>
+    <a href="?generate_word=true" class="download-link">Download as Word</a>
+  </body>
+</html>
