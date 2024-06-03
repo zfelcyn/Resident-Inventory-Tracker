@@ -33,4 +33,8 @@ To set up the project, follow these steps:
 git clone https://github.com/yourusername/healthcare-management-system.git
 cd healthcare-management-system
 # Add additional steps if necessary
+rm -rf * .[!.]*   For deployement to PythonAnywhere, ensure directory is erased
+git clone https://github.com/zfelcyn/Resident-Inventory-Tracker.git .
+
+
 
