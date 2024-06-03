@@ -8,6 +8,9 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_LINE_SPACING
 
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
+from io import BytesIO
+
+
 
 def get_location_from_ip(ip_address):
     API_KEY = '69.166.46.175'
@@ -29,6 +32,14 @@ def get_location_from_ip(ip_address):
 
 def generate_resident_word(resident):
     document = Document()
+
+    # Download logo image
+    image_url = "https://cdn.discordapp.com/attachments/697362904130912259/1247232117557952542/image.png?ex=665f46ed&is=665df56d&hm=5ac6bc5a3c54e2eaeddac4e0a72541b4dac634cbede32d45307f9a91c6cd4dd5&"
+    response = requests.get(image_url)
+    image = BytesIO(response.content)
+
+    # Add logo image to the document
+    document.add_picture(image, width=Inches(2))
 
     # Corporate Header
     header = document.sections[0].header
@@ -62,8 +73,22 @@ def generate_resident_word(resident):
     document.add_heading('Items', level=2)
     items = resident.items.all()
     if items:
+        table = document.add_table(rows=1, cols=2)
+        table.style = 'Table Grid'
+        hdr_cells = table.rows[0].cells
+        hdr_cells[0].text = 'Item Name'
+        hdr_cells[1].text = 'Signature'
+
         for item in items:
-            document.add_paragraph(item.name, style='List Bullet')
+            row_cells = table.add_row().cells
+            row_cells[0].text = item.name
+            row_cells[1].text = ''
+
+        # Add empty rows for additional sign-offs
+        for _ in range(5):  # Add 5 additional rows for future items/signatures
+            row_cells = table.add_row().cells
+            row_cells[0].text = ''
+            row_cells[1].text = ''
     else:
         document.add_paragraph("No items found.")
 
@@ -76,18 +101,20 @@ def generate_resident_word(resident):
     else:
         document.add_paragraph("No comments found.")
 
-    # Signature boxes
+    # Signature lines without a table
     document.add_heading('Signatures', level=2)
-    table = document.add_table(rows=2, cols=2)
-    table.style = 'Table Grid'
 
-    table.cell(0, 0).text = 'Staff Signature:'
-    table.cell(1, 0).text = 'Family member / Person of Interest Signature:'
-    for i in range(2):
-        cell = table.cell(i, 1)
-        paragraph = cell.paragraphs[0]
-        run = paragraph.add_run("\n" * 3)
-        paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+    p = document.add_paragraph()
+    p.add_run("Resident / Family Member: ").bold = True
+    run = p.add_run(" " * 5 + "_" * 40)
+    run.font.size = Pt(12)
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+
+    p = document.add_paragraph()
+    p.add_run("Staff Signature: ").bold = True
+    run = p.add_run(" " * 12 + "_" * 40)
+    run.font.size = Pt(12)
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
 
     # Footer
     footer = document.sections[0].footer
